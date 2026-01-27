@@ -10,7 +10,7 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: 'Camera Evolution',
   description: 'Experience how cameras evolved through time',
-  generator: 'v0.app',
+  generator: 'camera-evolution-app',
   icons: {
     icon: [
       {
