@@ -319,25 +319,93 @@ export default function Camera() {
     canvasRef.current.width = w
     canvasRef.current.height = h
 
-    // Apply base filter and draw image WITH resolution downsampling
-    context.filter = era.filter
+    // Try to apply CSS filter (works on desktop, may fail on mobile)
+    // First draw the image without filter for mobile compatibility
     context.imageSmoothingEnabled = false // Pixelated downsampling for authenticity
     context.drawImage(videoRef.current, sourceX, sourceY, sourceW, sourceH, 0, 0, w, h)
+    
+    // Manually apply grayscale/effects for B&W eras (mobile-compatible)
+    const needsGrayscale = ['daguerreotype', 'wetplate', 'earlyfilm', 'noir'].includes(era.id)
+    
+    // Get image data for manual processing
+    let imageData = context.getImageData(0, 0, w, h)
+    let data = imageData.data
+    
+    // Apply grayscale manually (required for mobile browsers)
+    if (needsGrayscale) {
+      for (let i = 0; i < data.length; i += 4) {
+        const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114
+        data[i] = gray     // Red
+        data[i + 1] = gray // Green
+        data[i + 2] = gray // Blue
+      }
+    }
+    
+    // Apply contrast adjustment manually
+    const contrastMap: Record<string, number> = {
+      'daguerreotype': 1.4,
+      'wetplate': 1.2,
+      'earlyfilm': 1.1,
+      'noir': 1.4,
+      'kodachrome': 1.15,
+    }
+    const contrastValue = contrastMap[era.id] || 1
+    if (contrastValue !== 1) {
+      const factor = (259 * (contrastValue * 255 + 255)) / (255 * (259 - contrastValue * 255))
+      for (let i = 0; i < data.length; i += 4) {
+        data[i] = Math.min(255, Math.max(0, factor * (data[i] - 128) + 128))
+        data[i + 1] = Math.min(255, Math.max(0, factor * (data[i + 1] - 128) + 128))
+        data[i + 2] = Math.min(255, Math.max(0, factor * (data[i + 2] - 128) + 128))
+      }
+    }
+    
+    // Apply brightness adjustment
+    const brightnessMap: Record<string, number> = {
+      'daguerreotype': 0.85,
+      'noir': 0.9,
+      'kodachrome': 0.95,
+    }
+    const brightnessValue = brightnessMap[era.id] || 1
+    if (brightnessValue !== 1) {
+      for (let i = 0; i < data.length; i += 4) {
+        data[i] = Math.min(255, data[i] * brightnessValue)
+        data[i + 1] = Math.min(255, data[i + 1] * brightnessValue)
+        data[i + 2] = Math.min(255, data[i + 2] * brightnessValue)
+      }
+    }
+    
+    // Apply saturation for color eras (Kodachrome, Polaroid)
+    const saturationMap: Record<string, number> = {
+      'kodachrome': 1.4,
+      'polaroid': 0.85,
+    }
+    const saturationValue = saturationMap[era.id]
+    if (saturationValue && !needsGrayscale) {
+      for (let i = 0; i < data.length; i += 4) {
+        const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114
+        data[i] = Math.min(255, gray + saturationValue * (data[i] - gray))
+        data[i + 1] = Math.min(255, gray + saturationValue * (data[i + 1] - gray))
+        data[i + 2] = Math.min(255, gray + saturationValue * (data[i + 2] - gray))
+      }
+    }
+    
+    context.putImageData(imageData, 0, 0)
     
     // For long exposure (daguerreotype), add motion blur
     if (era.exposure === 'long') {
       context.globalAlpha = 0.3
-      context.filter = 'blur(2px)'
       for (let i = 0; i < 3; i++) {
         context.drawImage(canvasRef.current, 0, 0)
       }
       context.globalAlpha = 1
     }
     
+    // Re-get image data after blur for color depth reduction
+    imageData = context.getImageData(0, 0, w, h)
+    data = imageData.data
+    
     // Reduce color depth to simulate era limitations
     if (era.colorDepth < 24) {
-      const imageData = context.getImageData(0, 0, w, h)
-      const data = imageData.data
       const levels = Math.pow(2, era.colorDepth)
       const step = 256 / levels
       
