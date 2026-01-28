@@ -319,74 +319,74 @@ export default function Camera() {
     canvasRef.current.width = w
     canvasRef.current.height = h
 
-    // Try to apply CSS filter (works on desktop, may fail on mobile)
-    // First draw the image without filter for mobile compatibility
-    context.imageSmoothingEnabled = false // Pixelated downsampling for authenticity
+    // Draw the image first
+    context.imageSmoothingEnabled = false
     context.drawImage(videoRef.current, sourceX, sourceY, sourceW, sourceH, 0, 0, w, h)
     
-    // Manually apply grayscale/effects for B&W eras (mobile-compatible)
-    const needsGrayscale = ['daguerreotype', 'wetplate', 'earlyfilm', 'noir'].includes(era.id)
+    // Check if this era needs B&W conversion
+    const needsGrayscale = ['daguerreotype', 'wet-plate', 'early-film', 'noir'].includes(era.id)
     
     // Get image data for manual processing
-    let imageData = context.getImageData(0, 0, w, h)
-    let data = imageData.data
+    const imageData = context.getImageData(0, 0, w, h)
+    const data = imageData.data
     
-    // Apply grayscale manually (required for mobile browsers)
-    if (needsGrayscale) {
-      for (let i = 0; i < data.length; i += 4) {
-        const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114
-        data[i] = gray     // Red
-        data[i + 1] = gray // Green
-        data[i + 2] = gray // Blue
+    // Process each pixel
+    for (let i = 0; i < data.length; i += 4) {
+      let r = data[i]
+      let g = data[i + 1]
+      let b = data[i + 2]
+      
+      // Step 1: Apply grayscale for B&W eras
+      if (needsGrayscale) {
+        const gray = r * 0.299 + g * 0.587 + b * 0.114
+        r = g = b = gray
       }
-    }
-    
-    // Apply contrast adjustment manually
-    const contrastMap: Record<string, number> = {
-      'daguerreotype': 1.4,
-      'wetplate': 1.2,
-      'earlyfilm': 1.1,
-      'noir': 1.4,
-      'kodachrome': 1.15,
-    }
-    const contrastValue = contrastMap[era.id] || 1
-    if (contrastValue !== 1) {
-      const factor = (259 * (contrastValue * 255 + 255)) / (255 * (259 - contrastValue * 255))
-      for (let i = 0; i < data.length; i += 4) {
-        data[i] = Math.min(255, Math.max(0, factor * (data[i] - 128) + 128))
-        data[i + 1] = Math.min(255, Math.max(0, factor * (data[i + 1] - 128) + 128))
-        data[i + 2] = Math.min(255, Math.max(0, factor * (data[i + 2] - 128) + 128))
+      
+      // Step 2: Apply era-specific adjustments
+      switch (era.id) {
+        case 'daguerreotype':
+          // High contrast, slightly dark
+          r = Math.min(255, Math.max(0, (r - 128) * 1.3 + 128 - 15))
+          g = Math.min(255, Math.max(0, (g - 128) * 1.3 + 128 - 15))
+          b = Math.min(255, Math.max(0, (b - 128) * 1.3 + 128 - 15))
+          break
+        case 'wet-plate':
+          // Medium contrast
+          r = Math.min(255, Math.max(0, (r - 128) * 1.15 + 128))
+          g = Math.min(255, Math.max(0, (g - 128) * 1.15 + 128))
+          b = Math.min(255, Math.max(0, (b - 128) * 1.15 + 128))
+          break
+        case 'noir':
+          // High contrast, dark
+          r = Math.min(255, Math.max(0, (r - 128) * 1.4 + 128 - 10))
+          g = Math.min(255, Math.max(0, (g - 128) * 1.4 + 128 - 10))
+          b = Math.min(255, Math.max(0, (b - 128) * 1.4 + 128 - 10))
+          break
+        case 'early-film':
+          // Slight contrast boost
+          r = Math.min(255, Math.max(0, (r - 128) * 1.1 + 128))
+          g = Math.min(255, Math.max(0, (g - 128) * 1.1 + 128))
+          b = Math.min(255, Math.max(0, (b - 128) * 1.1 + 128))
+          break
+        case 'kodachrome':
+          // Saturated, warm colors
+          const kGray = r * 0.299 + g * 0.587 + b * 0.114
+          r = Math.min(255, kGray + 1.4 * (r - kGray) + 5) // Warm red boost
+          g = Math.min(255, kGray + 1.3 * (g - kGray))
+          b = Math.min(255, Math.max(0, kGray + 1.2 * (b - kGray) - 5))
+          break
+        case 'polaroid':
+          // Slightly faded/desaturated
+          const pGray = r * 0.299 + g * 0.587 + b * 0.114
+          r = Math.min(255, pGray + 0.85 * (r - pGray) + 5)
+          g = Math.min(255, pGray + 0.85 * (g - pGray) + 3)
+          b = Math.min(255, pGray + 0.85 * (b - pGray))
+          break
       }
-    }
-    
-    // Apply brightness adjustment
-    const brightnessMap: Record<string, number> = {
-      'daguerreotype': 0.85,
-      'noir': 0.9,
-      'kodachrome': 0.95,
-    }
-    const brightnessValue = brightnessMap[era.id] || 1
-    if (brightnessValue !== 1) {
-      for (let i = 0; i < data.length; i += 4) {
-        data[i] = Math.min(255, data[i] * brightnessValue)
-        data[i + 1] = Math.min(255, data[i + 1] * brightnessValue)
-        data[i + 2] = Math.min(255, data[i + 2] * brightnessValue)
-      }
-    }
-    
-    // Apply saturation for color eras (Kodachrome, Polaroid)
-    const saturationMap: Record<string, number> = {
-      'kodachrome': 1.4,
-      'polaroid': 0.85,
-    }
-    const saturationValue = saturationMap[era.id]
-    if (saturationValue && !needsGrayscale) {
-      for (let i = 0; i < data.length; i += 4) {
-        const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114
-        data[i] = Math.min(255, gray + saturationValue * (data[i] - gray))
-        data[i + 1] = Math.min(255, gray + saturationValue * (data[i + 1] - gray))
-        data[i + 2] = Math.min(255, gray + saturationValue * (data[i + 2] - gray))
-      }
+      
+      data[i] = r
+      data[i + 1] = g
+      data[i + 2] = b
     }
     
     context.putImageData(imageData, 0, 0)
@@ -400,21 +400,19 @@ export default function Camera() {
       context.globalAlpha = 1
     }
     
-    // Re-get image data after blur for color depth reduction
-    imageData = context.getImageData(0, 0, w, h)
-    data = imageData.data
-    
     // Reduce color depth to simulate era limitations
     if (era.colorDepth < 24) {
+      const imgData = context.getImageData(0, 0, w, h)
+      const pixels = imgData.data
       const levels = Math.pow(2, era.colorDepth)
       const step = 256 / levels
       
-      for (let i = 0; i < data.length; i += 4) {
-        data[i] = Math.floor(data[i] / step) * step // Red
-        data[i + 1] = Math.floor(data[i + 1] / step) * step // Green
-        data[i + 2] = Math.floor(data[i + 2] / step) * step // Blue
+      for (let i = 0; i < pixels.length; i += 4) {
+        pixels[i] = Math.floor(pixels[i] / step) * step
+        pixels[i + 1] = Math.floor(pixels[i + 1] / step) * step
+        pixels[i + 2] = Math.floor(pixels[i + 2] / step) * step
       }
-      context.putImageData(imageData, 0, 0)
+      context.putImageData(imgData, 0, 0)
     }
     
     // Reset filter for post-processing
