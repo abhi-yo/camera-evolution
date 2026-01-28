@@ -28,6 +28,28 @@ export const metadata: Metadata = {
     ],
     apple: '/apple-icon.png',
   },
+  openGraph: {
+    title: 'Camera Evolution',
+    description: 'Experience how cameras evolved through time',
+    url: 'https://camera-evolution.vercel.app',
+    siteName: 'Camera Evolution',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Camera Evolution App',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Camera Evolution',
+    description: 'Experience how cameras evolved through time',
+    images: ['/og-image.jpg'],
+  },
 }
 
 export default function RootLayout({
