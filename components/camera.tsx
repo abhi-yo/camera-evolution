@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import AnimatedCameraSvg from './AnimatedCameraSvg'
 
 const ERAS = [
   {
@@ -104,8 +105,26 @@ export default function Camera() {
   const [format, setFormat] = useState<'square' | 'portrait' | 'landscape'>('square')
   const [showGallery, setShowGallery] = useState(false)
   const [gallery, setGallery] = useState<Array<{ id: string, dataUrl: string, era: string, format: string, timestamp: number }>>([])
+  const [isDarkMode, setIsDarkMode] = useState(false)
 
   const streamRef = useRef<MediaStream | null>(null)
+
+  // Load theme preference on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('camera-evolution-theme')
+    if (savedTheme) {
+      setIsDarkMode(savedTheme === 'dark')
+    } else {
+      // Check system preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      setIsDarkMode(prefersDark)
+    }
+  }, [])
+
+  // Save theme preference
+  useEffect(() => {
+    localStorage.setItem('camera-evolution-theme', isDarkMode ? 'dark' : 'light')
+  }, [isDarkMode])
 
   // Load gallery from localStorage on mount
   useEffect(() => {
@@ -573,27 +592,71 @@ export default function Camera() {
 
   if (!hasPermission) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-neutral-50">
-        <div className="text-center p-8">
-          <h1 className="text-2xl font-semibold mb-2 text-neutral-900">Camera Evolution</h1>
-          <p className="text-neutral-600">Please allow camera access to continue</p>
+      <div 
+        className={`${isDarkMode ? 'dark' : ''} flex items-center justify-center min-h-screen transition-colors duration-300`}
+        style={{ background: 'var(--layer-0)' }}
+      >
+        <div className="text-center">
+          <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>Camera Evolution</h1>
+          <p className={isDarkMode ? 'text-neutral-400' : 'text-neutral-600'}>Please allow camera access to continue</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-6">
+    <div 
+      className={`${isDarkMode ? 'dark' : ''} min-h-screen flex items-center justify-center p-6 transition-colors duration-300`}
+      style={{ background: 'var(--layer-0)' }}
+    >
+      {/* Theme Toggle - Elevated Button */}
+      <button
+        onClick={() => setIsDarkMode(!isDarkMode)}
+        className={`fixed top-6 right-6 p-3 rounded-full transition-all duration-200 z-50`}
+        style={{ 
+          background: 'var(--layer-3)',
+          boxShadow: 'var(--shadow-md)'
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-lg)'}
+        onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-md)'}
+        onMouseDown={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-inset)'}
+        onMouseUp={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-lg)'}
+        aria-label="Toggle theme"
+      >
+        {isDarkMode ? (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+        ) : (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-neutral-800">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        )}
+      </button>
+
       <div className="w-full max-w-3xl">
-        {/* Format Toggle - Minimal Pills */}
-        <div className="flex justify-center gap-3 mb-8">
+        {/* Format Toggle - Elevated Pills */}
+        <div 
+          className="flex justify-center gap-2 mb-8 p-1.5 rounded-full mx-auto w-fit"
+          style={{ 
+            background: 'var(--layer-1)',
+            boxShadow: 'var(--shadow-inset)'
+          }}
+        >
           <button
             onClick={() => setFormat('square')}
-            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
               format === 'square'
-                ? 'bg-black text-white shadow-sm'
-                : 'bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200'
+                ? isDarkMode ? 'text-black' : 'text-white'
+                : isDarkMode ? 'text-neutral-400' : 'text-neutral-600'
             }`}
+            style={{ 
+              background: format === 'square' 
+                ? isDarkMode ? '#ffffff' : '#000000'
+                : 'transparent',
+              boxShadow: format === 'square' ? 'var(--shadow-md)' : 'none'
+            }}
           >
             <span className="flex items-center gap-2">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -604,11 +667,17 @@ export default function Camera() {
           </button>
           <button
             onClick={() => setFormat('portrait')}
-            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
               format === 'portrait'
-                ? 'bg-black text-white shadow-sm'
-                : 'bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200'
+                ? isDarkMode ? 'text-black' : 'text-white'
+                : isDarkMode ? 'text-neutral-400' : 'text-neutral-600'
             }`}
+            style={{ 
+              background: format === 'portrait' 
+                ? isDarkMode ? '#ffffff' : '#000000'
+                : 'transparent',
+              boxShadow: format === 'portrait' ? 'var(--shadow-md)' : 'none'
+            }}
           >
             <span className="flex items-center gap-2">
               <svg width="12" height="16" viewBox="0 0 12 16" fill="none">
@@ -619,11 +688,17 @@ export default function Camera() {
           </button>
           <button
             onClick={() => setFormat('landscape')}
-            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
               format === 'landscape'
-                ? 'bg-black text-white shadow-sm'
-                : 'bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200'
+                ? isDarkMode ? 'text-black' : 'text-white'
+                : isDarkMode ? 'text-neutral-400' : 'text-neutral-600'
             }`}
+            style={{ 
+              background: format === 'landscape' 
+                ? isDarkMode ? '#ffffff' : '#000000'
+                : 'transparent',
+              boxShadow: format === 'landscape' ? 'var(--shadow-md)' : 'none'
+            }}
           >
             <span className="flex items-center gap-2">
               <svg width="18" height="10" viewBox="0 0 18 10" fill="none">
@@ -634,12 +709,13 @@ export default function Camera() {
           </button>
         </div>
 
-        {/* Video Preview - Clean Card */}
+        {/* Video Preview - Maximum Elevation Card */}
         <div 
-          className="relative bg-black rounded-2xl overflow-hidden shadow-xl mx-auto border border-neutral-200"
+          className="relative bg-black rounded-2xl overflow-hidden mx-auto"
           style={{
             aspectRatio: format === 'square' ? '1' : format === 'portrait' ? '4/5' : '1.91',
             maxWidth: format === 'square' ? '560px' : format === 'portrait' ? '560px' : '100%',
+            boxShadow: 'var(--shadow-xl)',
           }}
         >
           <video
@@ -658,27 +734,33 @@ export default function Camera() {
 
         {/* Era Info - Clean Typography */}
         <div className="mt-8 text-center space-y-2">
-          <h2 className="text-2xl font-semibold text-neutral-900 tracking-tight">
+          <h2 className={`text-2xl font-semibold tracking-tight ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>
             {ERAS[currentEra].name}
           </h2>
-          <p className="text-neutral-500 text-base">{ERAS[currentEra].year}</p>
-          <p className="text-xs text-neutral-400 font-mono tracking-wide">
+          <p className={isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}>{ERAS[currentEra].year}</p>
+          <p className={`text-xs font-mono tracking-wide ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}`}>
             {format === 'square' ? '1080×1080' : format === 'portrait' ? '1080×1350' : '1080×566'} · 
             {format === 'square' ? ' 1:1' : format === 'portrait' ? ' 4:5' : ' 1.91:1'} · 
             {ERAS[currentEra].colorDepth}-bit
           </p>
         </div>
 
-        {/* Timeline Slider - Enhanced */}
+        {/* Timeline Slider - Recessed Track */}
         <div className="mt-10 px-2">
-          <div className="relative">
+          <div 
+            className="relative p-3 rounded-xl"
+            style={{ 
+              background: 'var(--layer-1)',
+              boxShadow: 'var(--shadow-inset-deep)'
+            }}
+          >
             <input
               type="range"
               min="0"
               max={ERAS.length - 1}
               value={currentEra}
               onChange={(e) => setCurrentEra(parseInt(e.target.value))}
-              className="w-full h-1.5 bg-neutral-200 rounded-full appearance-none cursor-pointer slider"
+              className={`w-full h-1.5 rounded-full appearance-none cursor-pointer slider ${isDarkMode ? 'slider-dark' : ''}`}
             />
             {/* Era Markers */}
             <div className="flex justify-between mt-3 px-1">
@@ -686,11 +768,15 @@ export default function Camera() {
                 <button
                   key={era.id}
                   onClick={() => setCurrentEra(index)}
-                  className={`text-xs transition-all ${
+                  className={`text-xs transition-all px-2 py-1 rounded ${
                     currentEra === index
-                      ? 'text-neutral-900 font-semibold'
-                      : 'text-neutral-400 hover:text-neutral-600'
+                      ? isDarkMode ? 'text-white font-semibold' : 'text-neutral-900 font-semibold'
+                      : isDarkMode ? 'text-neutral-500 hover:text-neutral-300' : 'text-neutral-400 hover:text-neutral-600'
                   }`}
+                  style={{
+                    background: currentEra === index ? 'var(--layer-3)' : 'transparent',
+                    boxShadow: currentEra === index ? 'var(--shadow-sm)' : 'none'
+                  }}
                 >
                   {era.year}
                 </button>
@@ -700,24 +786,59 @@ export default function Camera() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 mt-10">
-          {/* Gallery Button */}
+        <div className="flex gap-4 mt-10">
+          {/* Gallery Button - Elevated */}
           <button
             onClick={() => setShowGallery(true)}
-            className="flex-1 py-4 bg-white text-neutral-900 text-base font-medium rounded-xl hover:bg-neutral-100 active:scale-[0.99] transition-all shadow-sm border border-neutral-200 relative"
+            className={`flex-1 py-4 text-base font-medium rounded-xl transition-all duration-200 relative`}
+            style={{ 
+              background: 'var(--layer-3)',
+              boxShadow: 'var(--btn-shadow)',
+              color: isDarkMode ? '#ffffff' : '#171717'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--btn-shadow-hover)'}
+            onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--btn-shadow)'}
+            onMouseDown={(e) => {
+              e.currentTarget.style.boxShadow = 'var(--btn-shadow-active)';
+              e.currentTarget.style.transform = 'translateY(1px)';
+            }}
+            onMouseUp={(e) => {
+              e.currentTarget.style.boxShadow = 'var(--btn-shadow-hover)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
           >
             Gallery
             {gallery.length > 0 && (
-              <span className="absolute -top-2 -right-2 bg-black text-white text-xs font-bold px-2 py-1 rounded-full">
+              <span 
+                className={`absolute -top-2 -right-2 text-xs font-bold px-2 py-1 rounded-full ${
+                  isDarkMode ? 'bg-white text-black' : 'bg-black text-white'
+                }`}
+                style={{ boxShadow: 'var(--shadow-md)' }}
+              >
                 {gallery.length}
               </span>
             )}
           </button>
           
-          {/* Capture Button */}
+          {/* Capture Button - Primary Elevated */}
           <button
             onClick={capturePhoto}
-            className="flex-1 py-4 bg-black text-white text-base font-medium rounded-xl hover:bg-neutral-800 active:scale-[0.99] transition-all shadow-sm"
+            className={`flex-1 py-4 text-base font-medium rounded-xl transition-all duration-200`}
+            style={{ 
+              background: isDarkMode ? '#ffffff' : '#000000',
+              color: isDarkMode ? '#000000' : '#ffffff',
+              boxShadow: 'var(--shadow-lg)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-xl)'}
+            onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-lg)'}
+            onMouseDown={(e) => {
+              e.currentTarget.style.boxShadow = 'var(--shadow-inset)';
+              e.currentTarget.style.transform = 'translateY(2px)';
+            }}
+            onMouseUp={(e) => {
+              e.currentTarget.style.boxShadow = 'var(--shadow-xl)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
           >
             Capture Photo
           </button>
@@ -733,9 +854,9 @@ export default function Camera() {
           width: 20px;
           height: 20px;
           border-radius: 50%;
-          background: black;
+          background: ${isDarkMode ? 'white' : 'black'};
           cursor: pointer;
-          border: 3px solid white;
+          border: 3px solid ${isDarkMode ? '#171717' : 'white'};
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
           margin-top: -7px;
         }
@@ -744,24 +865,26 @@ export default function Camera() {
           width: 20px;
           height: 20px;
           border-radius: 50%;
-          background: black;
+          background: ${isDarkMode ? 'white' : 'black'};
           cursor: pointer;
-          border: 3px solid white;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
           border: none;
         }
         
         .slider::-webkit-slider-runnable-track {
           width: 100%;
           height: 6px;
-          background: ${currentEra > 0 ? `linear-gradient(to right, black ${(currentEra / (ERAS.length - 1)) * 100}%, #e5e5e5 ${(currentEra / (ERAS.length - 1)) * 100}%)` : '#e5e5e5'};
+          background: ${currentEra > 0 
+            ? `linear-gradient(to right, ${isDarkMode ? 'white' : 'black'} ${(currentEra / (ERAS.length - 1)) * 100}%, ${isDarkMode ? '#404040' : '#e5e5e5'} ${(currentEra / (ERAS.length - 1)) * 100}%)` 
+            : isDarkMode ? '#404040' : '#e5e5e5'};
           border-radius: 9999px;
         }
         
         .slider::-moz-range-track {
           width: 100%;
           height: 6px;
-          background: ${currentEra > 0 ? `linear-gradient(to right, black ${(currentEra / (ERAS.length - 1)) * 100}%, #e5e5e5 ${(currentEra / (ERAS.length - 1)) * 100}%)` : '#e5e5e5'};
+          background: ${currentEra > 0 
+            ? `linear-gradient(to right, ${isDarkMode ? 'white' : 'black'} ${(currentEra / (ERAS.length - 1)) * 100}%, ${isDarkMode ? '#404040' : '#e5e5e5'} ${(currentEra / (ERAS.length - 1)) * 100}%)` 
+            : isDarkMode ? '#404040' : '#e5e5e5'};
           border-radius: 9999px;
         }
       `}</style>
@@ -769,33 +892,56 @@ export default function Camera() {
       {/* Gallery Modal */}
       {showGallery && (
         <div 
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6 z-50"
+          className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-6 z-50"
           onClick={() => setShowGallery(false)}
         >
           <div 
-            className="bg-white rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            className="rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            style={{ 
+              background: 'var(--layer-4)',
+              boxShadow: 'var(--shadow-xl)'
+            }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-semibold text-neutral-900">Gallery ({gallery.length})</h2>
+              <h2 className={`text-2xl font-semibold ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>Gallery ({gallery.length})</h2>
               <button
                 onClick={() => setShowGallery(false)}
-                className="p-2 hover:bg-neutral-100 rounded-full transition-colors"
+                className="p-2 rounded-full transition-all duration-200"
+                style={{ 
+                  background: 'var(--layer-2)',
+                  boxShadow: 'var(--shadow-sm)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-md)'}
+                onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-sm)'}
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={isDarkMode ? 'text-white' : 'text-neutral-800'}>
                   <path d="M18 6L6 18M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
             {gallery.length === 0 ? (
-              <div className="text-center py-12 text-neutral-500">
+              <div 
+                className={`text-center py-12 rounded-xl ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}
+                style={{ 
+                  background: 'var(--layer-1)',
+                  boxShadow: 'var(--shadow-inset)'
+                }}
+              >
                 <p>No photos yet. Capture your first photo!</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {gallery.map((photo) => (
-                  <div key={photo.id} className="bg-neutral-50 rounded-xl overflow-hidden border border-neutral-100">
+                  <div 
+                    key={photo.id} 
+                    className="rounded-xl overflow-hidden transition-all duration-200"
+                    style={{ 
+                      background: 'var(--layer-3)',
+                      boxShadow: 'var(--shadow-md)'
+                    }}
+                  >
                     <div className="relative aspect-square">
                       <img
                         src={photo.dataUrl}
@@ -807,10 +953,10 @@ export default function Camera() {
                     
                     <div className="p-3">
                       <div className="mb-3">
-                        <p className="font-semibold text-sm text-neutral-900">{photo.era}</p>
+                        <p className={`font-semibold text-sm ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>{photo.era}</p>
                         <div className="flex justify-between items-center mt-1">
-                          <p className="text-xs text-neutral-500 capitalize">{photo.format}</p>
-                          <p className="text-xs text-neutral-400">{new Date(photo.timestamp).toLocaleDateString()}</p>
+                          <p className={`text-xs capitalize ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>{photo.format}</p>
+                          <p className={`text-xs ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}`}>{new Date(photo.timestamp).toLocaleDateString()}</p>
                         </div>
                       </div>
                       
@@ -820,18 +966,33 @@ export default function Camera() {
                             e.stopPropagation()
                             downloadImage(photo.dataUrl, `${photo.era}-${photo.timestamp}.jpg`)
                           }}
-                          className="flex-1 py-2 bg-white text-neutral-900 text-xs font-medium rounded-lg border border-neutral-200 hover:bg-neutral-50 transition-colors"
+                          className="flex-1 py-2 text-xs font-medium rounded-lg transition-all duration-200"
+                          style={{ 
+                            background: 'var(--layer-2)',
+                            boxShadow: 'var(--btn-shadow)',
+                            color: isDarkMode ? '#ffffff' : '#171717'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--btn-shadow-hover)'}
+                          onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--btn-shadow)'}
                         >
                           Download
                         </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
-                            if (confirm('Are you sure you want to delete this photo?')) {
-                              deletePhoto(photo.id)
-                            }
+                            deletePhoto(photo.id)
                           }}
-                          className="flex-1 py-2 bg-white text-red-600 text-xs font-medium rounded-lg border border-red-100 hover:bg-red-50 transition-colors"
+                          className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all duration-200 ${
+                            isDarkMode 
+                              ? 'text-red-400' 
+                              : 'text-red-600'
+                          }`}
+                          style={{ 
+                            background: isDarkMode ? 'rgba(127, 29, 29, 0.3)' : 'rgba(254, 226, 226, 1)',
+                            boxShadow: 'var(--btn-shadow)'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--btn-shadow-hover)'}
+                          onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--btn-shadow)'}
                         >
                           Delete
                         </button>

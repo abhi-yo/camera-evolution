@@ -123,3 +123,154 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ========================================
+   LAYERED DEPTH SYSTEM
+   
+   Principle: Create visual hierarchy through:
+   1. Color Layering: Lighter = elevated, Darker = recessed
+   2. Shadow Elevation: Light glow TOP + Dark shadow BOTTOM
+   3. Shadow Recess: Dark inset TOP + Light inset BOTTOM
+   ======================================== */
+
+:root {
+  /* ===========================================
+     LAYERED BACKGROUND COLORS (Light Mode)
+     Each layer is ~10% lighter for elevation
+     =========================================== */
+  --layer-0: #e8e8e8;  /* Page background - darkest */
+  --layer-1: #f2f2f2;  /* Recessed elements */
+  --layer-2: #f8f8f8;  /* Default surface */
+  --layer-3: #ffffff;  /* Elevated elements */
+  --layer-4: #ffffff;  /* Highest elements (modals) */
+  
+  /* ===========================================
+     ELEVATION SHADOWS (Light Mode)
+     Light glow on TOP + Dark shadow on BOTTOM
+     This creates the "pop out" effect
+     =========================================== */
+  
+  /* Level 1: Subtle elevation - natural for most elements */
+  --shadow-sm: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
+    0 1px 2px 0 rgba(0, 0, 0, 0.08),
+    0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  
+  /* Level 2: Medium elevation - cards, buttons */
+  --shadow-md: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
+    0 2px 4px 0 rgba(0, 0, 0, 0.1),
+    0 4px 8px -2px rgba(0, 0, 0, 0.12),
+    0 8px 16px -4px rgba(0, 0, 0, 0.08);
+  
+  /* Level 3: Strong elevation - dropdowns, popovers */
+  --shadow-lg: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    0 4px 8px 0 rgba(0, 0, 0, 0.12),
+    0 8px 16px -4px rgba(0, 0, 0, 0.16),
+    0 16px 32px -8px rgba(0, 0, 0, 0.12),
+    0 24px 48px -12px rgba(0, 0, 0, 0.08);
+  
+  /* Level 4: Maximum elevation - modals */
+  --shadow-xl: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    0 8px 16px 0 rgba(0, 0, 0, 0.16),
+    0 16px 32px -8px rgba(0, 0, 0, 0.2),
+    0 32px 64px -16px rgba(0, 0, 0, 0.16),
+    0 48px 96px -24px rgba(0, 0, 0, 0.12);
+  
+  /* ===========================================
+     RECESS/INSET SHADOWS (Light Mode)
+     Dark inset on TOP + Light inset on BOTTOM
+     This creates the "pushed in" effect
+     =========================================== */
+  --shadow-inset: 
+    inset 0 2px 4px 0 rgba(0, 0, 0, 0.12),
+    inset 0 -1px 2px 0 rgba(255, 255, 255, 0.8);
+  
+  --shadow-inset-deep: 
+    inset 0 4px 8px 0 rgba(0, 0, 0, 0.15),
+    inset 0 -2px 4px 0 rgba(255, 255, 255, 0.9);
+  
+  /* ===========================================
+     BUTTON SPECIFIC SHADOWS
+     Combines elevation with pressed states
+     =========================================== */
+  --btn-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+    0 1px 2px 0 rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  
+  --btn-shadow-hover: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
+    0 2px 4px 0 rgba(0, 0, 0, 0.12),
+    0 4px 8px -2px rgba(0, 0, 0, 0.14),
+    0 8px 16px -4px rgba(0, 0, 0, 0.1);
+  
+  --btn-shadow-active: 
+    inset 0 2px 4px 0 rgba(0, 0, 0, 0.15),
+    inset 0 -1px 2px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* ===========================================
+   DARK MODE DEPTH SYSTEM
+   =========================================== */
+.dark {
+  /* Layered backgrounds - lighter = elevated */
+  --layer-0: #0a0a0a;  /* Page background - darkest */
+  --layer-1: #141414;  /* Recessed elements */
+  --layer-2: #1a1a1a;  /* Default surface */
+  --layer-3: #222222;  /* Elevated elements */
+  --layer-4: #2a2a2a;  /* Highest elements (modals) */
+  
+  /* Elevation Shadows - adapted for dark mode */
+  --shadow-sm: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
+    0 1px 2px 0 rgba(0, 0, 0, 0.4),
+    0 2px 4px 0 rgba(0, 0, 0, 0.3);
+  
+  --shadow-md: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
+    0 2px 4px 0 rgba(0, 0, 0, 0.5),
+    0 4px 8px -2px rgba(0, 0, 0, 0.4),
+    0 8px 16px -4px rgba(0, 0, 0, 0.3);
+  
+  --shadow-lg: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+    0 4px 8px 0 rgba(0, 0, 0, 0.5),
+    0 8px 16px -4px rgba(0, 0, 0, 0.5),
+    0 16px 32px -8px rgba(0, 0, 0, 0.4),
+    0 24px 48px -12px rgba(0, 0, 0, 0.3);
+  
+  --shadow-xl: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+    0 8px 16px 0 rgba(0, 0, 0, 0.6),
+    0 16px 32px -8px rgba(0, 0, 0, 0.5),
+    0 32px 64px -16px rgba(0, 0, 0, 0.4),
+    0 48px 96px -24px rgba(0, 0, 0, 0.3);
+  
+  /* Recess/Inset Shadows - dark mode */
+  --shadow-inset: 
+    inset 0 2px 4px 0 rgba(0, 0, 0, 0.5),
+    inset 0 -1px 2px 0 rgba(255, 255, 255, 0.05);
+  
+  --shadow-inset-deep: 
+    inset 0 4px 8px 0 rgba(0, 0, 0, 0.6),
+    inset 0 -2px 4px 0 rgba(255, 255, 255, 0.08);
+  
+  /* Button shadows - dark mode */
+  --btn-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
+    0 1px 2px 0 rgba(0, 0, 0, 0.4),
+    0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  
+  --btn-shadow-hover: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+    0 2px 4px 0 rgba(0, 0, 0, 0.5),
+    0 4px 8px -2px rgba(0, 0, 0, 0.4),
+    0 8px 16px -4px rgba(0, 0, 0, 0.3);
+  
+  --btn-shadow-active: 
+    inset 0 2px 4px 0 rgba(0, 0, 0, 0.5),
+    inset 0 -1px 2px 0 rgba(255, 255, 255, 0.03);
+}
