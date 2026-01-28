@@ -35,10 +35,10 @@ const ERAS = [
     exposure: 'normal',
   },
   {
-    id: 'sepia',
-    name: 'Sepia Portrait',
+    id: 'noir',
+    name: 'Noir',
     year: 1930,
-    filter: 'sepia(100%) contrast(80%) brightness(108%) saturate(70%) blur(0.6px)',
+    filter: 'grayscale(100%) contrast(140%) brightness(90%)',
     resolution: { width: 1920, height: 1080 },
     aspectRatio: 16/9,
     colorDepth: 8,
@@ -606,13 +606,13 @@ export default function Camera() {
 
   return (
     <div 
-      className={`${isDarkMode ? 'dark' : ''} min-h-screen flex items-center justify-center p-6 transition-colors duration-300`}
+      className={`${isDarkMode ? 'dark' : ''} min-h-screen flex items-center justify-center p-3 sm:p-6 transition-colors duration-300`}
       style={{ background: 'var(--layer-0)' }}
     >
       {/* Theme Toggle - Elevated Button */}
       <button
         onClick={() => setIsDarkMode(!isDarkMode)}
-        className={`fixed top-6 right-6 p-3 rounded-full transition-all duration-200 z-50`}
+        className={`fixed top-3 right-3 sm:top-6 sm:right-6 p-2.5 sm:p-3 rounded-full transition-all duration-200 z-50`}
         style={{ 
           background: 'var(--layer-3)',
           boxShadow: 'var(--shadow-md)'
@@ -624,21 +624,21 @@ export default function Camera() {
         aria-label="Toggle theme"
       >
         {isDarkMode ? (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white sm:w-5 sm:h-5">
             <circle cx="12" cy="12" r="5"/>
             <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
           </svg>
         ) : (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-neutral-800">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-neutral-800 sm:w-5 sm:h-5">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
           </svg>
         )}
       </button>
 
       <div className="w-full max-w-3xl">
-        {/* Format Toggle - Elevated Pills */}
+        {/* Format Toggle - Compact on mobile */}
         <div 
-          className="flex justify-center gap-2 mb-8 p-1.5 rounded-full mx-auto w-fit"
+          className="flex justify-center gap-1 sm:gap-2 mb-4 sm:mb-8 p-1 sm:p-1.5 rounded-full mx-auto w-fit"
           style={{ 
             background: 'var(--layer-1)',
             boxShadow: 'var(--shadow-inset)'
@@ -646,7 +646,7 @@ export default function Camera() {
         >
           <button
             onClick={() => setFormat('square')}
-            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+            className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
               format === 'square'
                 ? isDarkMode ? 'text-black' : 'text-white'
                 : isDarkMode ? 'text-neutral-400' : 'text-neutral-600'
@@ -658,16 +658,17 @@ export default function Camera() {
               boxShadow: format === 'square' ? 'var(--shadow-md)' : 'none'
             }}
           >
-            <span className="flex items-center gap-2">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <span className="flex items-center gap-1 sm:gap-2">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" className="sm:w-3.5 sm:h-3.5">
                 <rect width="14" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5" fill="none"/>
               </svg>
-              Square
+              <span className="hidden sm:inline">Square</span>
+              <span className="sm:hidden">1:1</span>
             </span>
           </button>
           <button
             onClick={() => setFormat('portrait')}
-            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+            className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
               format === 'portrait'
                 ? isDarkMode ? 'text-black' : 'text-white'
                 : isDarkMode ? 'text-neutral-400' : 'text-neutral-600'
@@ -679,16 +680,17 @@ export default function Camera() {
               boxShadow: format === 'portrait' ? 'var(--shadow-md)' : 'none'
             }}
           >
-            <span className="flex items-center gap-2">
-              <svg width="12" height="16" viewBox="0 0 12 16" fill="none">
+            <span className="flex items-center gap-1 sm:gap-2">
+              <svg width="10" height="14" viewBox="0 0 12 16" fill="none" className="sm:w-3 sm:h-4">
                 <rect width="12" height="16" rx="1.5" stroke="currentColor" strokeWidth="1.5" fill="none"/>
               </svg>
-              Portrait
+              <span className="hidden sm:inline">Portrait</span>
+              <span className="sm:hidden">4:5</span>
             </span>
           </button>
           <button
             onClick={() => setFormat('landscape')}
-            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+            className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
               format === 'landscape'
                 ? isDarkMode ? 'text-black' : 'text-white'
                 : isDarkMode ? 'text-neutral-400' : 'text-neutral-600'
@@ -700,18 +702,19 @@ export default function Camera() {
               boxShadow: format === 'landscape' ? 'var(--shadow-md)' : 'none'
             }}
           >
-            <span className="flex items-center gap-2">
-              <svg width="18" height="10" viewBox="0 0 18 10" fill="none">
+            <span className="flex items-center gap-1 sm:gap-2">
+              <svg width="16" height="9" viewBox="0 0 18 10" fill="none" className="sm:w-4 sm:h-2.5">
                 <rect width="18" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5" fill="none"/>
               </svg>
-              Landscape
+              <span className="hidden sm:inline">Landscape</span>
+              <span className="sm:hidden">16:9</span>
             </span>
           </button>
         </div>
 
         {/* Video Preview - Maximum Elevation Card */}
         <div 
-          className="relative bg-black rounded-2xl overflow-hidden mx-auto"
+          className="relative bg-black rounded-xl sm:rounded-2xl overflow-hidden mx-auto"
           style={{
             aspectRatio: format === 'square' ? '1' : format === 'portrait' ? '4/5' : '1.91',
             maxWidth: format === 'square' ? '560px' : format === 'portrait' ? '560px' : '100%',
@@ -733,12 +736,12 @@ export default function Camera() {
         </div>
 
         {/* Era Info - Clean Typography */}
-        <div className="mt-8 text-center space-y-2">
-          <h2 className={`text-2xl font-semibold tracking-tight ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>
+        <div className="mt-3 sm:mt-6 text-center space-y-0.5 sm:space-y-1">
+          <h2 className={`text-lg sm:text-2xl font-semibold tracking-tight ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>
             {ERAS[currentEra].name}
           </h2>
-          <p className={isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}>{ERAS[currentEra].year}</p>
-          <p className={`text-xs font-mono tracking-wide ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}`}>
+          <p className={`text-sm sm:text-base ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>{ERAS[currentEra].year}</p>
+          <p className={`text-[10px] sm:text-xs font-mono tracking-wide ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}`}>
             {format === 'square' ? '1080×1080' : format === 'portrait' ? '1080×1350' : '1080×566'} · 
             {format === 'square' ? ' 1:1' : format === 'portrait' ? ' 4:5' : ' 1.91:1'} · 
             {ERAS[currentEra].colorDepth}-bit
@@ -746,9 +749,9 @@ export default function Camera() {
         </div>
 
         {/* Timeline Slider - Recessed Track */}
-        <div className="mt-10 px-2">
+        <div className="mt-3 sm:mt-6 px-1 sm:px-2">
           <div 
-            className="relative p-3 rounded-xl"
+            className="relative p-2 sm:p-3 rounded-lg sm:rounded-xl"
             style={{ 
               background: 'var(--layer-1)',
               boxShadow: 'var(--shadow-inset-deep)'
@@ -763,12 +766,12 @@ export default function Camera() {
               className={`w-full h-1.5 rounded-full appearance-none cursor-pointer slider ${isDarkMode ? 'slider-dark' : ''}`}
             />
             {/* Era Markers */}
-            <div className="flex justify-between mt-3 px-1">
+            <div className="flex justify-between mt-2 sm:mt-3 px-0.5 sm:px-1">
               {ERAS.map((era, index) => (
                 <button
                   key={era.id}
                   onClick={() => setCurrentEra(index)}
-                  className={`text-xs transition-all px-2 py-1 rounded ${
+                  className={`text-[10px] sm:text-xs transition-all px-1 sm:px-2 py-0.5 sm:py-1 rounded ${
                     currentEra === index
                       ? isDarkMode ? 'text-white font-semibold' : 'text-neutral-900 font-semibold'
                       : isDarkMode ? 'text-neutral-500 hover:text-neutral-300' : 'text-neutral-400 hover:text-neutral-600'
@@ -786,11 +789,11 @@ export default function Camera() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4 mt-10">
+        <div className="flex gap-3 sm:gap-4 mt-4 sm:mt-6">
           {/* Gallery Button - Elevated */}
           <button
             onClick={() => setShowGallery(true)}
-            className={`flex-1 py-4 text-base font-medium rounded-xl transition-all duration-200 relative`}
+            className={`flex-1 py-3 sm:py-4 text-sm sm:text-base font-medium rounded-lg sm:rounded-xl transition-all duration-200 relative`}
             style={{ 
               background: 'var(--layer-3)',
               boxShadow: 'var(--btn-shadow)',
@@ -823,7 +826,7 @@ export default function Camera() {
           {/* Capture Button - Primary Elevated */}
           <button
             onClick={capturePhoto}
-            className={`flex-1 py-4 text-base font-medium rounded-xl transition-all duration-200`}
+            className={`flex-1 py-3 sm:py-4 text-sm sm:text-base font-medium rounded-lg sm:rounded-xl transition-all duration-200`}
             style={{ 
               background: isDarkMode ? '#ffffff' : '#000000',
               color: isDarkMode ? '#000000' : '#ffffff',
@@ -840,7 +843,7 @@ export default function Camera() {
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            Capture Photo
+            Capture
           </button>
         </div>
       </div>
@@ -892,22 +895,22 @@ export default function Camera() {
       {/* Gallery Modal */}
       {showGallery && (
         <div 
-          className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-6 z-50"
+          className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 z-50"
           onClick={() => setShowGallery(false)}
         >
           <div 
-            className="rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            className="rounded-xl sm:rounded-2xl p-4 sm:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
             style={{ 
               background: 'var(--layer-4)',
               boxShadow: 'var(--shadow-xl)'
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-6">
-              <h2 className={`text-2xl font-semibold ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>Gallery ({gallery.length})</h2>
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
+              <h2 className={`text-lg sm:text-2xl font-semibold ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>Gallery ({gallery.length})</h2>
               <button
                 onClick={() => setShowGallery(false)}
-                className="p-2 rounded-full transition-all duration-200"
+                className="p-1.5 sm:p-2 rounded-full transition-all duration-200"
                 style={{ 
                   background: 'var(--layer-2)',
                   boxShadow: 'var(--shadow-sm)'
@@ -915,7 +918,7 @@ export default function Camera() {
                 onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-md)'}
                 onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-sm)'}
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={isDarkMode ? 'text-white' : 'text-neutral-800'}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`sm:w-6 sm:h-6 ${isDarkMode ? 'text-white' : 'text-neutral-800'}`}>
                   <path d="M18 6L6 18M6 6l12 12" />
                 </svg>
               </button>
@@ -923,7 +926,7 @@ export default function Camera() {
 
             {gallery.length === 0 ? (
               <div 
-                className={`text-center py-12 rounded-xl ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}
+                className={`text-center py-8 sm:py-12 rounded-lg sm:rounded-xl text-sm sm:text-base ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}
                 style={{ 
                   background: 'var(--layer-1)',
                   boxShadow: 'var(--shadow-inset)'
@@ -932,11 +935,11 @@ export default function Camera() {
                 <p>No photos yet. Capture your first photo!</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-2 sm:gap-4">
                 {gallery.map((photo) => (
                   <div 
                     key={photo.id} 
-                    className="rounded-xl overflow-hidden transition-all duration-200"
+                    className="rounded-lg sm:rounded-xl overflow-hidden transition-all duration-200"
                     style={{ 
                       background: 'var(--layer-3)',
                       boxShadow: 'var(--shadow-md)'
@@ -951,22 +954,22 @@ export default function Camera() {
                       <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors" />
                     </div>
                     
-                    <div className="p-3">
-                      <div className="mb-3">
-                        <p className={`font-semibold text-sm ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>{photo.era}</p>
-                        <div className="flex justify-between items-center mt-1">
-                          <p className={`text-xs capitalize ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>{photo.format}</p>
-                          <p className={`text-xs ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}`}>{new Date(photo.timestamp).toLocaleDateString()}</p>
+                    <div className="p-2 sm:p-3">
+                      <div className="mb-2 sm:mb-3">
+                        <p className={`font-semibold text-xs sm:text-sm ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>{photo.era}</p>
+                        <div className="flex justify-between items-center mt-0.5 sm:mt-1">
+                          <p className={`text-[10px] sm:text-xs capitalize ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>{photo.format}</p>
+                          <p className={`text-[10px] sm:text-xs ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}`}>{new Date(photo.timestamp).toLocaleDateString()}</p>
                         </div>
                       </div>
                       
-                      <div className="flex gap-2">
+                      <div className="flex gap-1.5 sm:gap-2">
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
                             downloadImage(photo.dataUrl, `${photo.era}-${photo.timestamp}.jpg`)
                           }}
-                          className="flex-1 py-2 text-xs font-medium rounded-lg transition-all duration-200"
+                          className="flex-1 py-1.5 sm:py-2 text-[10px] sm:text-xs font-medium rounded sm:rounded-lg transition-all duration-200"
                           style={{ 
                             background: 'var(--layer-2)',
                             boxShadow: 'var(--btn-shadow)',
@@ -982,7 +985,7 @@ export default function Camera() {
                             e.stopPropagation()
                             deletePhoto(photo.id)
                           }}
-                          className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all duration-200 ${
+                          className={`flex-1 py-1.5 sm:py-2 text-[10px] sm:text-xs font-medium rounded sm:rounded-lg transition-all duration-200 ${
                             isDarkMode 
                               ? 'text-red-400' 
                               : 'text-red-600'
